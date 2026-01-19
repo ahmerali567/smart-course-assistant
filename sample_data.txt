@@ -1,0 +1,6 @@
+program|semester|course|topic|prerequisites|why
+Computer Science|1|Introduction to Programming|Variables| |Basic concept of storing data
+Computer Science|1|Introduction to Programming|Loops|Variables|To repeat actions
+Computer Science|1|Introduction to Programming|Functions|Variables, Loops|To organize code
+Computer Science|2|Data Structures|Arrays|Introduction to Programming|To store multiple values
+Computer Science|2|Data Structures|Linked Lists|Arrays|Dynamic data structure

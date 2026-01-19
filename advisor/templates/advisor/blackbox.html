@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Course Assistant</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            color: #00ffe1;
+            transition: all 0.3s ease;
+        }
+        .glow {
+            text-shadow: 0 0 10px #00ffe1, 0 0 20px #00ffe1, 0 0 30px #00ffe1;
+            transition: text-shadow 0.3s ease;
+        }
+        .glow:hover {
+            text-shadow: 0 0 15px #00ffe1, 0 0 30px #00ffe1, 0 0 45px #00ffe1;
+        }
+        .glass {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 255, 225, 0.1);
+            transition: all 0.3s ease;
+        }
+        .glass:hover {
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 12px 40px rgba(0, 255, 225, 0.2);
+        }
+        .pulse {
+            animation: pulse 2s infinite ease-in-out;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.02); }
+        }
+        .fade-in {
+            animation: fadeIn 1s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .slide-in-left {
+            animation: slideInLeft 0.8s ease-out;
+        }
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        .slide-in-right {
+            animation: slideInRight 0.8s ease-out;
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        .typing {
+            overflow: hidden;
+            border-right: 2px solid #00ffe1;
+            white-space: nowrap;
+            animation: typing 3s steps(40, end), blink-caret 0.75s step-end infinite;
+        }
+        @keyframes typing {
+            from { width: 0; }
+            to { width: 100%; }
+        }
+        @keyframes blink-caret {
+            from, to { border-color: transparent; }
+            50% { border-color: #00ffe1; }
+        }
+        .loading {
+            display: none;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        select, input, button {
+            transition: all 0.3s ease;
+            border: 2px solid rgba(0, 255, 225, 0.3);
+            box-shadow: 0 0 10px rgba(0, 255, 225, 0.1);
+        }
+        select:focus, input:focus {
+            transform: scale(1.02);
+            border-color: #00ffe1;
+            box-shadow: 0 0 20px rgba(0, 255, 225, 0.5);
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 255, 225, 0.3);
+        }
+        .glass {
+            border: 2px solid rgba(0, 255, 225, 0.3);
+            box-shadow: 0 0 20px rgba(0, 255, 225, 0.2), inset 0 0 20px rgba(0, 255, 225, 0.05);
+        }
+        .glass:hover {
+            border-color: rgba(0, 255, 225, 0.6);
+            box-shadow: 0 0 30px rgba(0, 255, 225, 0.4), inset 0 0 30px rgba(0, 255, 225, 0.1);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+    <!-- Header -->
+    <header class="text-center py-4">
+        <h1 class="text-4xl font-bold glow">Smart Course Assistant</h1>
+        <p class="text-gray-300 typing font-bold">The next-generation study tool: Precisely identifying the foundational knowledge you need now.</p>
+    </header>
+
+    <!-- Main Content -->
+    <div class="flex-grow flex">
+        <!-- Left Panel: Controls -->
+        <div class="w-1/2 p-6 glass m-4 rounded-lg slide-in-left">
+            <div class="text-center mb-6">
+                <div id="lottie-container" class="w-24 h-24 mx-auto"></div>
+            </div>
+            <form method="get" class="space-y-4">
+                <!-- Program Selection -->
+                <div>
+                    <label for="program" class="block text-sm font-medium mb-2 flex items-center">
+                        <span class="text-2xl mr-2">🎓</span> Select Program
+                    </label>
+                    <select name="program" id="program" onchange="this.form.submit()" class="w-full bg-gray-800 border border-gray-600 rounded-md px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500">
+                        <option value="">Choose a program</option>
+                        {% for program in programs %}
+                            <option value="{{ program.id }}" {% if selected_program == program.id|stringformat:"s" %}selected{% endif %}>{{ program.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Semester Selection -->
+                {% if semesters %}
+                <div>
+                    <label for="semester" class="block text-sm font-medium mb-2 flex items-center">
+                        <span class="text-2xl mr-2">📅</span> Select Semester
+                    </label>
+                    <select name="semester" id="semester" onchange="this.form.submit()" class="w-full bg-gray-800 border border-gray-600 rounded-md px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500">
+                        <option value="">Choose a semester</option>
+                        {% for semester in semesters %}
+                            <option value="{{ semester }}" {% if selected_semester == semester|stringformat:"s" %}selected{% endif %}>Semester {{ semester }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                {% endif %}
+
+                <!-- Course Selection -->
+                {% if courses %}
+                <div>
+                    <label for="course" class="block text-sm font-medium mb-2 flex items-center">
+                        <span class="text-2xl mr-2">📖</span> Select Course
+                    </label>
+                    <select name="course" id="course" onchange="this.form.submit()" class="w-full bg-gray-800 border border-gray-600 rounded-md px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500">
+                        <option value="">Choose a course</option>
+                        {% for course in courses %}
+                            <option value="{{ course.id }}" {% if selected_course == course.id|stringformat:"s" %}selected{% endif %}>{{ course.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                {% endif %}
+            </form>
+
+            {% if courses %}
+            <form method="post" class="mt-6 space-y-4">
+                {% csrf_token %}
+                <div>
+                    <label for="topic_input" class="block text-sm font-medium mb-2 flex items-center">
+                        <span class="text-2xl mr-2">🔍</span> Enter Topic
+                    </label>
+                    <input type="text" name="topic_input" id="topic_input" placeholder="e.g., Machine Learning" class="w-full bg-gray-800 border border-gray-600 rounded-md px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500" required>
+                </div>
+                <button type="submit" class="w-full bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-2 px-4 rounded-md transition duration-300 glow">Search Prerequisites</button>
+            </form>
+            {% endif %}
+        </div>
+
+        <!-- Right Panel: Results -->
+        <div class="w-1/2 p-6 glass m-4 rounded-lg flex flex-col slide-in-right">
+            <h2 class="text-xl font-semibold mb-4 glow">Results</h2>
+            {% if message %}
+            <div class="fade-in mb-4">
+                <p class="text-gray-300">{{ message }}</p>
+            </div>
+            {% endif %}
+            {% if results %}
+            <div class="mb-4 p-3 glass rounded-lg">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <p class="text-cyan-400 font-semibold">Searched: "{{ topic_input }}"</p>
+                        <p class="text-gray-400 text-sm">Course: {{ selected_course_name }}</p>
+                    </div>
+                    <a href="{% url 'homepage' %}?program={{ selected_program }}&semester={{ selected_semester }}&course={{ selected_course }}" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-md text-sm transition duration-300">Clear Results</a>
+                </div>
+            </div>
+            <div class="space-y-4 overflow-y-auto flex-grow">
+                {% for result in results %}
+                <div class="glass rounded-lg p-4 pulse hover:scale-105 transition-transform duration-300">
+                    <h3 class="font-semibold glow">{{ result.topic }} ({{ result.score }}% match)</h3>
+                    <div class="space-y-2 mt-2">
+                        <p class="text-gray-300 flex items-start">
+                            <span class="text-cyan-400 mr-2">💡</span>
+                            <span><strong>Why:</strong> {{ result.why }}</span>
+                        </p>
+                        <p class="text-gray-300 flex items-start">
+                            <span class="text-cyan-400 mr-2">📚</span>
+                            <span><strong>Prerequisites:</strong> {{ result.prerequisites|join:", " }}</span>
+                        </p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Recent Searches Section -->
+    <div class="w-full max-w-6xl mx-auto mt-8 px-4">
+        <h3 class="text-lg font-semibold mb-4 glow text-center">Recent Searches</h3>
+        {% if recent_searches %}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {% for search in recent_searches %}
+            <div class="glass rounded-lg p-4 hover:scale-105 transition-transform duration-300">
+                <div class="flex items-center mb-2">
+                    <span class="text-2xl mr-2">🔍</span>
+                    <span class="font-semibold text-cyan-400">{{ search.topic_input }}</span>
+                </div>
+                <p class="text-gray-300 text-sm mb-1">Course: {{ search.course_name }}</p>
+                <p class="text-gray-400 text-xs">Found {{ search.results_count }} result(s) at {{ search.timestamp }}</p>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="glass rounded-lg p-4 text-center">
+            <p class="text-gray-300">No recent searches yet. Perform a search to see it here!</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Footer -->
+    <footer class="text-center py-4 text-gray-400 mt-8">
+        <p>&copy; 2025 Smart Course Assistant | Powered by Django</p>
+    </footer>
+
+    <script>
+        // Load Lottie animation
+        lottie.loadAnimation({
+            container: document.getElementById('lottie-container'),
+            renderer: 'svg',
+            loop: true,
+            autoplay: true,
+            path: 'https://assets.lottiefiles.com/packages/lf20_qp1q7mct.json' // AI robot animation
+        });
+    </script>
+</body>
+</html>
